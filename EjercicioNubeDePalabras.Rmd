@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Cargar las librerías necesarias
 library(dplyr) #Para usar dplyr
 library(tidyverse) #Para usar tidytext
+library(tidytext)
 library(wordcloud2)
 library(tm)
 library(readr)
@@ -36,13 +37,15 @@ Ahora necesitamos filtrar **stop words** en varios idiomas (porque no solo hay c
 ```{r}
 idiomas <- list('spanish', 'portuguese', 'french', 'danish', 'dutch', 'finnish', 'german', 'hungarian', 'italian', 'norwegian', 'russian', 'swedish')
 
-variosIdiomas_stop_words <- idiomas %>% 
-  map(tm::stopwords) %>%
-  flatten_dfc() %>% 
-  gather(var, word) %>%
-  bind_rows(stop_words) %>%
-  select(word, lexicon)
+variosIdiomas_stop_words <- idiomas  |> 
+  map(tm::stopwords)  |> 
+  flatten_dfc()  
 
+variosIdiomas_stop_words  |> 
+  pivot_longer(cols = everything(),
+            values_to = "word")  |> 
+  bind_rows(stop_words)  |> 
+  select(word, lexicon)
 ```
 
 Ahora tenemos que obtener solo palabras, asi que vamos a :
@@ -56,12 +59,12 @@ Completa el código para poder obtener el conjunto de datos `palabras` para lueg
 
   
 ```{r}
-palabras <- titulos %>%
-  _____________(word, titulo) %>%
-  _____________(variosIdiomas_stop_words) %>%
-  count(word) %>%
-  _____________(n>10)
+palabras <- titulos  |> 
+  unnest_tokens(word, titulos)  
 
+#|> 
+#  anti_join(variosIdiomas_stop_words)  |> 
+#  count(word) 
 
 ```
 
