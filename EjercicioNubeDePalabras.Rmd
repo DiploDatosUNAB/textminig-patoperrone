@@ -9,8 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 # Cargar las librerías necesarias
-library(__________) #Para usar dplyr
-library(__________) #Para usar tidytext
+library(dplyr) #Para usar dplyr
+library(tidyverse) #Para usar tidytext
 library(wordcloud2)
 library(tm)
 library(readr)
@@ -25,7 +25,7 @@ Tenemos en el archivo `rladies_meetup.csv` los títulos de los eventos de R-Ladi
 EL primer paso es leer el archivo que tiene todos los titulos de meetups de r-ladies. **Completen este código para que se lea el archivo "rladies_meetups.csv"**
 
 ```{r}
-titulos <- ________("rladies_meetups.csv")
+titulos <- read.csv("rladies_meetups.csv")
 
 ```
 
