@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr) #para poder usar el pipe y filtrar y graficar
 library(tidytext) #para poder hacer text mining
 library(rtweet) #para poder usar twitter
+library(tidyr)
 ```
 
 ## Autenticarse
@@ -93,24 +94,30 @@ Tenemos que remover las stopwords. Revisar bien que idiomas trabaja la cuenta pa
 Ahora hay que hacer lo mismo para los favoritos
 
 Ahora calculamos las frecuencias
+Y hacemos el mismo cálculo para favoritos
+
+```{r}
+resumen_tw <- Texto_sin_SW  |> 
+  group_by(palabras)  |> 
+  summarise(cantidad_tw = n())
+
+```
+Hasta acá corre bien
 
 ```{r}
 resumen_tw <- Texto_sin_SW  |> 
   group_by(palabras)  |> 
   summarise(cantidad_tw = n()) |> 
   order_by(desc(cantidad_tw))
-
 ```
-
-
-Y hacemos el mismo cálculo para favoritos
 
 ```{r}
 resumen_favoritos <- favs_sin_SW |> 
   group_by(palabras)  |> 
-  summarise(cantidad = n()) |> 
-  order_by(desc(resumen_favoritos$cantidad))
+  summarise(cantidad_fv = n()) |> 
+  order_by(desc(resumen_favoritos$cantidad_fv))
 ```
+
 
 ## Gráficos
 
