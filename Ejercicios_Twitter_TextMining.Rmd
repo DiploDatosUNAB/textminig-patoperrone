@@ -102,6 +102,7 @@ resumen_tw <- Texto_sin_SW  |>
 
 ```
 
+
 Y hacemos el mismo cálculo para favoritos
 
 ```{r}
