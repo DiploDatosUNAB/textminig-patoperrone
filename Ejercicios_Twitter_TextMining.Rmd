@@ -1,0 +1,131 @@
+---
+title: "Ejercicio Twitter"
+author: "Yanina"
+date: "2022-09-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr) #para poder usar el pipe y filtrar y graficar
+library(tidytext) #para poder hacer text mining
+library(rtweet) #para poder usar twitter
+```
+
+## Autenticarse
+
+Utilizar el siguiente código para autenticarte en twitter y poder utilizar la API.  Necesitas tener una cuenta en twitter.
+
+```{r cars}
+auth_setup_default()
+```
+
+
+## Recuperar los datos
+
+Obtener los seguidores de la cuenta y a que usuarios la cuenta sigue.
+
+```{r pressure, echo=FALSE}
+
+seguidores <- get_followers("LatinR_Conf")
+
+amigues <- get_friends("LatinR_Conf")
+
+```
+
+## Recuperar tweets
+
+Recuperar los últimos 1000 tweets
+
+```{r}
+
+tmls <- get_timeline("LatinR_Conf", n = 1000)
+
+```
+
+Recuperar los últimos 1000 favoritos
+
+```{r}
+
+favs <- get_favorites("LatinR_Conf", n = 1000)
+
+```
+
+## Hacer text minig sobre los tweets
+
+
+Primero obtener solo el texto de los tweet del timeline
+
+```{r}
+
+texto_tweets <- tmls %>% 
+  select(full_text) %>% 
+  unnest_tokens(palabras, full_text)
+  
+stopwords_es <- tibble(palabras = tm::stopwords(kind = "es"))
+stopwords_en <- tibble(palabras = tm::stopwords(kind = "en"))
+
+Texto_sin_SW <- texto_tweets |> 
+  anti_join(stopwords_es) |> 
+  anti_join(stopwords_en)
+```
+
+Ahora hacer lo mismo pero con los favoritos
+
+```{r}
+
+texto_favoritos <- favs %>% 
+  select(full_text) %>% 
+  unnest_tokens(palabras, full_text)
+
+stopwords_pt <- tibble(palabras = tm::stopwords(kind = "pt"))
+
+favs_sin_SW <- texto_favoritos |> 
+  anti_join(stopwords_es) |> 
+  anti_join(stopwords_en) |> 
+  anti_join(stopwords_pt)
+
+```
+
+Tenemos que remover las stopwords. Revisar bien que idiomas trabaja la cuenta para filtrar todas las stopwords necesarias
+
+Ahora hay que hacer lo mismo para los favoritos
+
+Ahora calculamos las frecuencias
+
+```{r}
+resumen_tw <- Texto_sin_SW  |> 
+  group_by(palabras)  |> 
+  summarise(cantidad_tw = n()) |> 
+  order_by(desc(cantidad_tw))
+
+```
+
+Y hacemos el mismo cálculo para favoritos
+
+```{r}
+resumen_favoritos <- favs_sin_SW |> 
+  group_by(palabras)  |> 
+  summarise(cantidad = n()) |> 
+  order_by(desc(resumen_favoritos$cantidad))
+```
+
+## Gráficos
+
+Hacemos un gráfico de barras para el texto de los tweets
+
+```{r}
+
+# ggplot(resumen_tw, aes())
+```
+
+Hacemos una nube de palabras para el texto de los favoritos
+
+```{r}
+
+
+
+```
+
+
