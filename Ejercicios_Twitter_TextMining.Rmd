@@ -12,6 +12,10 @@ library(dplyr) #para poder usar el pipe y filtrar y graficar
 library(tidytext) #para poder hacer text mining
 library(rtweet) #para poder usar twitter
 library(tidyr)
+library(tm)
+library(scales)
+library(tidyverse)
+library(wordcloud2)
 ```
 
 ## Autenticarse
@@ -67,7 +71,7 @@ texto_tweets <- tmls %>%
 stopwords_es <- tibble(palabras = tm::stopwords(kind = "es"))
 stopwords_en <- tibble(palabras = tm::stopwords(kind = "en"))
 
-Texto_sin_SW <- texto_tweets |> 
+texto_sin_SW <- texto_tweets |> 
   anti_join(stopwords_es) |> 
   anti_join(stopwords_en)
 ```
@@ -97,25 +101,19 @@ Ahora calculamos las frecuencias
 Y hacemos el mismo cálculo para favoritos
 
 ```{r}
-resumen_tw <- Texto_sin_SW  |> 
-  group_by(palabras)  |> 
-  summarise(cantidad_tw = n())
-
-```
-Hasta acá corre bien
-
-```{r}
-resumen_tw <- Texto_sin_SW  |> 
-  group_by(palabras)  |> 
-  summarise(cantidad_tw = n()) |> 
-  order_by(desc(cantidad_tw))
+resumen_tw <- texto_sin_SW %>%
+  select(palabras) %>%
+  summarise(cantidad = n()) %>%
+  count(desc(cantidad))
+resumen_tw
 ```
 
 ```{r}
-resumen_favoritos <- favs_sin_SW |> 
-  group_by(palabras)  |> 
-  summarise(cantidad_fv = n()) |> 
-  order_by(desc(resumen_favoritos$cantidad_fv))
+resumen_favs <- favs_sin_SW %>%
+  select(palabras) %>%
+  summarise(cantidad = n()) %>%
+  count(desc(cantidad))
+resumen_favs
 ```
 
 
