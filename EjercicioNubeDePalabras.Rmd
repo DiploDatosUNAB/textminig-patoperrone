@@ -26,7 +26,10 @@ Tenemos en el archivo `rladies_meetup.csv` los títulos de los eventos de R-Ladi
 EL primer paso es leer el archivo que tiene todos los titulos de meetups de r-ladies. **Completen este código para que se lea el archivo "rladies_meetups.csv"**
 
 ```{r}
-titulos <- read.csv("rladies_meetups.csv")
+titulos <- read_delim("rladies_meetups.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE) 
+
+titulos <- titulos |> select(titulo)
 
 ```
 
@@ -39,7 +42,8 @@ idiomas <- list('spanish', 'portuguese', 'french', 'danish', 'dutch', 'finnish',
 
 variosIdiomas_stop_words <- idiomas  |> 
   map(tm::stopwords)  |> 
-  flatten_dfc()  
+  flatten_dfc()  |> 
+ 
 
 variosIdiomas_stop_words  |> 
   pivot_longer(cols = everything(),
