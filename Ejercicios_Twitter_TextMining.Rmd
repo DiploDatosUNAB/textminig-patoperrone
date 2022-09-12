@@ -101,18 +101,19 @@ Ahora calculamos las frecuencias
 Y hacemos el mismo cálculo para favoritos
 
 ```{r}
-resumen_tw <- texto_sin_SW %>%
-  select(palabras) %>%
-  summarise(cantidad = n()) %>%
-  count(desc(cantidad))
+resumen_tw <- texto_sin_SW  |> 
+  select(palabras)  |> 
+  mutate(cantidad = n()) |> 
+  order_by("cantidad")
+
 resumen_tw
 ```
 
 ```{r}
-resumen_favs <- favs_sin_SW %>%
-  select(palabras) %>%
-  summarise(cantidad = n()) %>%
-  count(desc(cantidad))
+resumen_favs <- favs_sin_SW  |> 
+  select(palabras)  |> 
+  mutate(cantidad = n())  |> 
+  order_by(desc(cantidad))
 resumen_favs
 ```
 
@@ -122,8 +123,10 @@ resumen_favs
 Hacemos un gráfico de barras para el texto de los tweets
 
 ```{r}
+# grafico de palabras y frecuencias
 
-# ggplot(resumen_tw, aes())
+
+ggplot(texto_sin_SW, aes())
 ```
 
 Hacemos una nube de palabras para el texto de los favoritos
