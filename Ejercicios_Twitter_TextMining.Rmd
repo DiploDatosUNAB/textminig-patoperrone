@@ -143,6 +143,8 @@ Hacemos una nube de palabras para el texto de los favoritos
 
 ```{r}
 
+wordcloud2(resumen_favs, size = 1, minRotation = -pi/6, maxRotation = -pi/6,
+                  color = "random-light", backgroundColor = "grey")
 
 
 ```
