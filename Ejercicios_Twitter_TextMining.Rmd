@@ -103,8 +103,9 @@ Y hacemos el mismo cálculo para favoritos
 ```{r}
 resumen_tw <- texto_sin_SW  |> 
   select(palabras)  |> 
+  group_by(palabras) |> 
   mutate(cantidad = n()) |> 
-  order_by("cantidad")
+  arrange(desc(cantidad))
 
 resumen_tw
 ```
@@ -112,8 +113,10 @@ resumen_tw
 ```{r}
 resumen_favs <- favs_sin_SW  |> 
   select(palabras)  |> 
-  mutate(cantidad = n())  |> 
-  order_by(desc(cantidad))
+  group_by(palabras) |> 
+  mutate(cantidad = n()) |> 
+  arrange(desc(cantidad))
+
 resumen_favs
 ```
 

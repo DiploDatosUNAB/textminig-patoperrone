@@ -10,11 +10,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Cargar las librerías necesarias
 library(dplyr) #Para usar dplyr
-library(tidyverse) #Para usar tidytext
-library(tidytext)
+library(tidytext) #Para usar tidytext
 library(wordcloud2)
 library(tm)
 library(readr)
+library(purrr)
+library(remotes)
+library(learnr)
+library(readr)
+library(tidyverse)
 ```
 
 ## Nube de Palabras
@@ -27,11 +31,11 @@ EL primer paso es leer el archivo que tiene todos los titulos de meetups de r-la
 
 ```{r}
 titulos <- read_delim("rladies_meetups.csv", 
-    delim = ";", escape_double = FALSE, trim_ws = TRUE) 
-
-titulos <- titulos |> select(titulo)
+    delim = ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
+    trim_ws = TRUE)
 
 ```
+
 
 Ahora necesitamos filtrar **stop words** en varios idiomas (porque no solo hay capítulos en Español).
 
@@ -40,17 +44,16 @@ Ahora necesitamos filtrar **stop words** en varios idiomas (porque no solo hay c
 ```{r}
 idiomas <- list('spanish', 'portuguese', 'french', 'danish', 'dutch', 'finnish', 'german', 'hungarian', 'italian', 'norwegian', 'russian', 'swedish')
 
-variosIdiomas_stop_words <- idiomas  |> 
-  map(tm::stopwords)  |> 
-  flatten_dfc()  |> 
- 
-
-variosIdiomas_stop_words  |> 
-  pivot_longer(cols = everything(),
-            values_to = "word")  |> 
-  bind_rows(stop_words)  |> 
+variosIdiomas_stop_words <- idiomas %>% 
+  map(tm::stopwords) %>%
+  flatten_dfc() %>% 
+  gather(var, word) %>%
+  bind_rows(stop_words) %>%
   select(word, lexicon)
+variosIdiomas_stop_words
 ```
+
+
 
 Ahora tenemos que obtener solo palabras, asi que vamos a :
 
@@ -63,19 +66,18 @@ Completa el código para poder obtener el conjunto de datos `palabras` para lueg
 
   
 ```{r}
-palabras <- titulos  |> 
-  unnest_tokens(word, titulos)  
-
-#|> 
-#  anti_join(variosIdiomas_stop_words)  |> 
-#  count(word) 
+palabras <- titulos %>%
+  unnest_tokens(word, titulo) %>%
+  anti_join(variosIdiomas_stop_words) %>%
+  count(word) %>%
+  filter(n>10)
 
 ```
 
 Agregamos el código para visualizar el set de datos, las primeras 15 filas.
 
 ```{r}
-________(palabras, n=________)
+head(palabras, n=15)
 
 ```
 
@@ -83,7 +85,7 @@ ________(palabras, n=________)
 Con las palabras finales seleccionadas armamos una nube de palabras. Completa el código para poder obtener una nube de palabras. Aquí si queremos que se muestre el resultado.
 
 ```{r}
-___________ (__________ , size = 1, minRotation = -pi/6, maxRotation = -pi/6,
+wordcloud2(palabras , size = 1, minRotation = -pi/6, maxRotation = -pi/6,
                   color = "random-light", backgroundColor = "grey")
 
 ```
