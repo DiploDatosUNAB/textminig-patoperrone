@@ -1,0 +1,61 @@
+---
+title: "Textmining en Tweeter"
+output: html_document
+date: "2022-09-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytext)
+library(rtweet)
+```
+## Autenticando
+
+```{r}
+auth_setup_default()
+```
+
+## Obteniendo info de un usuario
+
+```{r}
+seguidores <- get_followers("patoperrone")
+
+data_usuario <- lookup_users(c("patoperrone"))
+
+amigues <- get_friends("patoperrone")
+```
+
+## Obtener los ultimos tweets
+
+```{r}
+tweets <- get_timeline("patoperrone", n = 500)
+```
+## Text Mining
+
+```{r}
+Solo_texto <- tweets |> 
+  select(text) |> 
+  unnest_tokens(palabras, text)
+
+stopwords_es <- tibble(palabras = tm::stopwords(kind = "es"))
+stopwords_en <- tibble(palabras = tm::stopwords(kind = "en"))
+
+Texto_sin_SW <- Solo_texto |> 
+  anti_join(stopwords_es) |> 
+  anti_join(stopwords_en)
+
+resumen <- Texto_sin_SW |> 
+  count(palabras) |> 
+  filter(palabras != "https")
+  
+```
+
+
+
+
+
+
+
+

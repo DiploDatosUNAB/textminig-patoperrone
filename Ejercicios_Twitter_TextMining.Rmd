@@ -1,0 +1,152 @@
+---
+title: "Ejercicio Twitter"
+author: "Yanina"
+date: "2022-09-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr) #para poder usar el pipe y filtrar y graficar
+library(tidytext) #para poder hacer text mining
+library(rtweet) #para poder usar twitter
+library(tidyr)
+library(tm)
+library(scales)
+library(tidyverse)
+library(wordcloud2)
+```
+
+## Autenticarse
+
+Utilizar el siguiente código para autenticarte en twitter y poder utilizar la API.  Necesitas tener una cuenta en twitter.
+
+```{r cars}
+auth_setup_default()
+```
+
+
+## Recuperar los datos
+
+Obtener los seguidores de la cuenta y a que usuarios la cuenta sigue.
+
+```{r pressure, echo=FALSE}
+
+seguidores <- get_followers("LatinR_Conf")
+
+amigues <- get_friends("LatinR_Conf")
+
+```
+
+## Recuperar tweets
+
+Recuperar los últimos 1000 tweets
+
+```{r}
+
+tmls <- get_timeline("LatinR_Conf", n = 1000)
+
+```
+
+Recuperar los últimos 1000 favoritos
+
+```{r}
+
+favs <- get_favorites("LatinR_Conf", n = 1000)
+
+```
+
+## Hacer text minig sobre los tweets
+
+
+Primero obtener solo el texto de los tweet del timeline
+
+```{r}
+
+texto_tweets <- tmls %>% 
+  select(full_text) %>% 
+  unnest_tokens(palabras, full_text)
+  
+stopwords_es <- tibble(palabras = tm::stopwords(kind = "es"))
+stopwords_en <- tibble(palabras = tm::stopwords(kind = "en"))
+
+texto_sin_SW <- texto_tweets |> 
+  anti_join(stopwords_es) |> 
+  anti_join(stopwords_en)
+```
+
+Ahora hacer lo mismo pero con los favoritos
+
+```{r}
+
+texto_favoritos <- favs %>% 
+  select(full_text) %>% 
+  unnest_tokens(palabras, full_text)
+
+stopwords_pt <- tibble(palabras = tm::stopwords(kind = "pt"))
+
+favs_sin_SW <- texto_favoritos |> 
+  anti_join(stopwords_es) |> 
+  anti_join(stopwords_en) |> 
+  anti_join(stopwords_pt)
+
+```
+
+Tenemos que remover las stopwords. Revisar bien que idiomas trabaja la cuenta para filtrar todas las stopwords necesarias
+
+Ahora hay que hacer lo mismo para los favoritos
+
+Ahora calculamos las frecuencias
+Y hacemos el mismo cálculo para favoritos
+
+```{r}
+resumen_tw <- texto_sin_SW  |> 
+  count(palabras) |> 
+  arrange(desc(n))
+
+resumen_tw <- head(resumen_tw,15)
+```
+
+```{r}
+resumen_favs <- favs_sin_SW  |> 
+  count(palabras) |> 
+  arrange(desc(n))
+
+resumen_favs <- head(resumen_favs, 15)
+```
+
+
+## Gráficos
+
+Hacemos un gráfico de barras para el texto de los tweets
+
+```{r}
+# grafico de palabras y frecuencias
+
+ggplot(resumen_tw, aes(palabras,n, fill = n)) +
+  geom_col(position=position_dodge()) +
+  labs(title = "Gráfico 1 - Distribución de los 15 Tweets más frecuentes")
+
+```
+
+```{r}
+ggplot(resumen_favs, aes(palabras, n, fill = n)) +
+  geom_col(position=position_dodge()) +
+  labs(title = "Gráfico 2 - Distribución de los 15 Tweets favoritos más frecuentes")
+
+```
+
+
+
+Hacemos una nube de palabras para el texto de los favoritos
+
+```{r}
+
+wordcloud2(resumen_favs, size = 1, minRotation = -pi/6, maxRotation = -pi/6,
+                  color = "random-light", backgroundColor = "grey")
+
+
+```
+
+
